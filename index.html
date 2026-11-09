@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen Interactivo: La Prehistoria</title>
+    <!-- Tailwind CSS para un diseño limpio y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fae8ff 50%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+        h1, h2, .font-heading {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        .item-card {
+            transition: all 0.2s ease;
+        }
+        .item-card:hover {
+            transform: translateY(-2px);
+        }
+        canvas {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex flex-col items-center justify-center">
+
+    <!-- Contenedor Principal -->
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl p-6 sm:p-10 border-4 border-amber-200 relative overflow-hidden">
+        
+        <!-- Cabecera -->
+        <div class="text-center mb-8">
+            <span class="bg-amber-100 text-amber-800 text-sm font-bold px-4 py-1.5 rounded-full inline-block mb-3 shadow-sm">
+                🦖 Actividad Educativa - La Prehistoria
+            </span>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">¡Une cada concepto con su respuesta!</h1>
+            <p class="text-slate-600 text-sm sm:text-base">
+                Haz clic primero en un elemento de la <strong>izquierda</strong> y luego en su pareja correspondiente de la <strong>derecha</strong> para unirlos con una línea.
+            </p>
+        </div>
+
+        <!-- Zona de Juego -->
+        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 my-6" id="game-container">
+            
+            <!-- Canvas para dibujar las líneas dinámicas -->
+            <canvas id="lines-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+
+            <!-- Columna Izquierda: Conceptos / Imágenes / Preguntas -->
+            <div class="space-y-4 z-20" id="left-column">
+                <h3 class="font-heading text-lg text-slate-700 mb-3 border-b-2 border-amber-100 pb-1">Conceptos Clave</h3>
+                <!-- Los elementos se llenarán mediante JavaScript para orden aleatorio si se desea, o estricto -->
+            </div>
+
+            <!-- Columna Derecha: Descripciones -->
+            <div class="space-y-4 z-20" id="right-column">
+                <h3 class="font-heading text-lg text-slate-700 mb-3 border-b-2 border-amber-100 pb-1">Descripciones / Respuestas</h3>
+                <!-- Los elementos se llenarán mediante JavaScript -->
+            </div>
+
+        </div>
+
+        <!-- Panel de Mensajes y Resultados -->
+        <div id="result-box" class="hidden mt-8 p-4 rounded-2xl text-center font-medium transition-all duration-300"></div>
+
+        <!-- Botones de Acción -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <button id="check-btn" onclick="comprobarResultados()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer">
+                ✨ Comprobar Respuestas
+            </button>
+            <button id="reset-btn" onclick="reiniciarJuego()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-2xl shadow transition-all cursor-pointer">
+                🔄 Reiniciar
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Script de lógica interactiva -->
+    <script>
+        // Definición de los 5 pares basados en la ficha de la Prehistoria
+        const datosOriginales = [
+            { id: 1, izquierda: "🏡 ¿Dónde vivía la gente?", derecha: "En cuevas naturales", iconoLeft: "⛺", iconoRight: "🪨" },
+            { id: 2, izquierda: "🧥 ¿Qué usaban para abrigarse?", derecha: "Pieles de animales", iconoLeft: "🪵", iconoRight: "🐅" },
+            { id: 3, izquierda: "🪨 ¿De qué eran las herramientas?", derecha: "De piedra tallada", iconoLeft: "🔨", iconoRight: "⛏️" },
+            { id: 4, izquierda: "🔥 ¿Qué usaban para cocinar y calentarse?", derecha: "El fuego", iconoLeft: "⚡", iconoRight: "🔥" },
+            { id: 5, izquierda: "🏹 ¿Qué actividad realizaban para comer?", derecha: "La caza y la pesca", iconoLeft: "🎯", iconoRight: "🍖" }
+        ];
+
+        let izquierdaSeleccionada = null;
+        let conexiones = {}; // clave: idIzq, valor: idDer
+        let lineasDibujadas = []; // Almacena pares conectados para pintar líneas
+
+        let izquierdaMezclada = [];
+        let derechaMezclada = [];
+
+        function iniciarJuego() {
+            conexiones = {};
+            lineasDibujadas = [];
+            izquierdaSeleccionada = null;
+            document.getElementById('result-box').classList.add('hidden');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('check-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+
+            // Clonar y mezclar elementos para que no estén ordenados idénticamente
+            izquierdaMezclada = [...datosOriginales].sort(() => Math.random() - 0.5);
+            derechaMezclada = [...datosOriginales].sort(() => Math.random() - 0.5);
+
+            renderizarColumnas();
+            actualizarCanvas();
+        }
+
+        function renderizarColumnas() {
+            const colIzq = document.getElementById('left-column');
+            const colDer = document.getElementById('right-column');
+
+            // Limpiar contenido anterior (manteniendo el título)
+            const tituloIzq = colIzq.firstElementChild;
+            const tituloDer = colDer.firstElementChild;
+            colIzq.innerHTML = '';
+            colDer.innerHTML = '';
+            colIzq.appendChild(tituloIzq);
+            colDer.appendChild(tituloDer);
+
+            // Renderizar elementos de la izquierda
+            izquierdaMezclada.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `item-card bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl cursor-pointer flex items-center justify-between shadow-sm select-none`;
+                div.dataset.id = item.id;
+                div.id = `left-${item.id}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${item.iconoLeft}</span>
+                        <span class="font-semibold text-slate-800 text-sm sm:text-base">${item.izquierda}</span>
+                    </div>
+                    <span class="w-6 h-6 rounded-full border-2 border-amber-400 flex items-center justify-center text-xs font-bold text-amber-700 dot-indicator">·</span>
+                `;
+                div.onclick = () => seleccionarIzquierda(item.id, div);
+                colIzq.appendChild(div);
+            });
+
+            // Renderizar elementos de la derecha
+            derechaMezclada.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `item-card bg-blue-50 border-2 border-blue-200 p-4 rounded-2xl cursor-pointer flex items-center justify-between shadow-sm select-none`;
+                div.dataset.id = item.id;
+                div.id = `right-${item.id}`;
+                div.innerHTML = `
+                    <span class="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center text-xs font-bold text-blue-700 dot-indicator">·</span>
+                    <div class="flex items-center gap-3 text-right flex-row-reverse">
+                        <span class="text-2xl">${item.iconoRight}</span>
+                        <span class="font-semibold text-slate-800 text-sm sm:text-base">${item.derecha}</span>
+                    </div>
+                `;
+                div.onclick = () => seleccionarDerecha(item.id, div);
+                colDer.appendChild(div);
+            });
+        }
+
+        function seleccionarIzquierda(id, elementoDom) {
+            // Si ya está conectado, podemos permitir cambiarlo o borrarlo
+            // Desmarcar anterior izquierda seleccionada
+            document.querySelectorAll('#left-column .item-card').forEach(el => {
+                el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-100');
+            });
+
+            izquierdaSeleccionada = id;
+            elementoDom.classList.add('ring-4', 'ring-amber-400', 'bg-amber-100');
+        }
+
+        function seleccionarDerecha(idDer, elementoDom) {
+            if (!izquierdaSeleccionada) {
+                mostrarAlertaTemporal("Primero haz clic en un concepto de la columna izquierda.", "warning");
+                return;
+            }
+
+            // Asignar conexión (borrar si la izquierda ya tenía otra conexión previa)
+            // Eliminar conexión previa de esta izquierda si existía
+            delete conexiones[izquierdaSeleccionada];
+
+            // Registrar nueva conexión
+            conexiones[izquierdaSeleccionada] = idDer;
+
+            // Limpiar estilos de selección en izquierda
+            document.querySelectorAll('#left-column .item-card').forEach(el => {
+                el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-100');
+            });
+            izquierdaSeleccionada = null;
+
+            actualizarCanvas();
+            actualizarEstilosConectados();
+        }
+
+        function actualizarEstilosConectados() {
+            // Marcar visualmente tarjetas que tienen conexión
+            document.querySelectorAll('#left-column .item-card').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                if (conexiones[id]) {
+                    el.classList.add('border-emerald-400', 'bg-emerald-50');
+                } else {
+                    el.classList.remove('border-emerald-400', 'bg-emerald-50');
+                }
+            });
+
+            const conectadasDer = Object.values(conexiones);
+            document.querySelectorAll('#right-column .item-card').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                if (conectadasDer.includes(id)) {
+                    el.classList.add('border-emerald-400', 'bg-emerald-50');
+                } else {
+                    el.classList.remove('border-emerald-400', 'bg-emerald-50');
+                }
+            });
+        }
+
+        function actualizarCanvas() {
+            const canvas = document.getElementById('lines-canvas');
+            const container = document.getElementById('game-container');
+            const rectContainer = container.getBoundingClientRect();
+
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#3b82f6'; // Azul bonito para las líneas
+
+            for (const [idIzq, idDer] of Object.entries(conexiones)) {
+                const elIzq = document.getElementById(`left-${idIzq}`);
+                const elDer = document.getElementById(`right-${idDer}`);
+
+                if (elIzq && elDer) {
+                    const rectIzq = elIzq.getBoundingClientRect();
+                    const rectDer = elDer.getBoundingClientRect();
+
+                    // Coordenadas relativas al contenedor del juego
+                    const x1 = rectIzq.right - rectContainer.left - 12;
+                    const y1 = rectIzq.top + rectIzq.height / 2 - rectContainer.top;
+                    const x2 = rectDer.left - rectContainer.left + 12;
+                    const y2 = rectDer.top + rectDer.height / 2 - rectContainer.top;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.bezierCurveTo(x1 + 60, y1, x2 - 60, y2, x2, y2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function comprobarResultados() {
+            const totalPares = datosOriginales.length;
+            const totalConectadas = Object.keys(conexiones).length;
+
+            if (totalConectadas < totalPares) {
+                mostrarAlertaTemporal(`¡Te faltan por unir ${totalPares - totalConectadas} pares! Completa todas las conexiones.`, "warning");
+                return;
+            }
+
+            let aciertos = 0;
+            for (const [idIzq, idDer] of Object.entries(conexiones)) {
+                if (parseInt(idIzq) === parseInt(idDer)) {
+                    aciertos++;
+                }
+            }
+
+            const resultBox = document.getElementById('result-box');
+            resultBox.classList.remove('hidden');
+
+            if (aciertos === totalPares) {
+                resultBox.className = "mt-8 p-6 rounded-2xl text-center font-medium bg-emerald-100 border-2 border-emerald-400 text-emerald-800 shadow-md animate-bounce";
+                resultBox.innerHTML = `🎉 ¡EXCELENTE TRABAJO! Has conseguido <strong>5 de 5</strong> aciertos. ¡Eres un experto en la Prehistoria! 🌟`;
+            } else {
+                resultBox.className = "mt-8 p-6 rounded-2xl text-center font-medium bg-amber-100 border-2 border-amber-400 text-amber-900 shadow-md";
+                resultBox.innerHTML = `💡 Has conseguido <strong>${aciertos} de ${totalPares}</strong> aciertos. ¡Revisa las conexiones y vuelve a intentarlo!`;
+            }
+
+            // Deshabilitar botón comprobar hasta reiniciar o cambiar
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function reiniciarJuego() {
+            iniciarJuego();
+        }
+
+        function mostrarAlertaTemporal(mensaje, tipo) {
+            const resultBox = document.getElementById('result-box');
+            resultBox.classList.remove('hidden');
+            resultBox.className = "mt-8 p-4 rounded-2xl text-center font-medium bg-amber-50 border-2 border-amber-300 text-amber-800 shadow";
+            resultBox.innerHTML = `⚠️ ${mensaje}`;
+            setTimeout(() => {
+                if(Object.keys(conexiones).length === 0) {
+                    resultBox.classList.add('hidden');
+                }
+            }, 3500);
+        }
+
+        // Inicializar al cargar la página y recalcular en redimensionamiento
+        window.onload = iniciarJuego;
+        window.onresize = actualizarCanvas;
+    </script>
+</body>
+</html>
