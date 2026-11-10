@@ -2,216 +2,284 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Examen Interactivo: La Prehistoria</title>
     <!-- Tailwind CSS para un diseño limpio y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Fredoka e Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fef3c7 0%, #fae8ff 50%, #e0f2fe 100%);
-            min-height: 100vh;
+            background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 50%, #e0f2fe 100%);
+            touch-action: manipulation;
         }
-        h1, h2, .font-heading {
+        h1, h2, h3, .font-heading {
             font-family: 'Fredoka', cursive, sans-serif;
         }
         .item-card {
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
         }
-        .item-card:hover {
-            transform: translateY(-2px);
+        .item-card:active {
+            transform: scale(0.97);
         }
-        canvas {
+        canvas#lines-canvas {
             pointer-events: none;
         }
     </style>
 </head>
-<body class="p-4 sm:p-8 flex flex-col items-center justify-center">
+<body class="h-screen w-screen overflow-hidden p-2 sm:p-4 flex flex-col justify-between box-border select-none">
 
-    <!-- Contenedor Principal -->
-    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl p-6 sm:p-10 border-4 border-amber-200 relative overflow-hidden">
+    <!-- Contenedor Principal (100% fit sin scroll) -->
+    <div class="max-w-6xl w-full mx-auto bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl p-3 sm:p-5 border-2 sm:border-4 border-amber-300 flex flex-col justify-between h-full overflow-hidden relative">
         
-        <!-- Cabecera -->
-        <div class="text-center mb-8">
-            <span class="bg-amber-100 text-amber-800 text-sm font-bold px-4 py-1.5 rounded-full inline-block mb-3 shadow-sm">
-                🦖 Actividad Educativa - La Prehistoria
-            </span>
-            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">¡Une cada concepto con su respuesta!</h1>
-            <p class="text-slate-600 text-sm sm:text-base">
-                Haz clic primero en un elemento de la <strong>izquierda</strong> y luego en su pareja correspondiente de la <strong>derecha</strong> para unirlos con una línea.
+        <!-- Cabecera Compacta -->
+        <div class="text-center flex-none">
+            <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-900 text-xs font-bold px-3 py-0.5 rounded-full border border-amber-200">
+                <span>🦴 Ciencias Sociales</span>
+                <span>•</span>
+                <span>Unir con flechas</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mt-0.5">EDAD DE LA PREHISTORIA</h1>
+            <p class="text-slate-600 text-xs sm:text-sm font-medium">
+                Toca las <strong>5 tarjetas</strong> de la derecha que pertenecen a la Prehistoria. ¡Cuidado con los distractores!
             </p>
         </div>
 
-        <!-- Zona de Juego -->
-        <div class="relative grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 my-6" id="game-container">
+        <!-- Zona de Juego Central (Flex grow sin scroll) -->
+        <div class="relative flex-1 grid grid-cols-12 gap-3 sm:gap-6 my-2 items-center min-h-0" id="game-container">
             
             <!-- Canvas para dibujar las líneas dinámicas -->
             <canvas id="lines-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
 
-            <!-- Columna Izquierda: Conceptos / Imágenes / Preguntas -->
-            <div class="space-y-4 z-20" id="left-column">
-                <h3 class="font-heading text-lg text-slate-700 mb-3 border-b-2 border-amber-100 pb-1">Conceptos Clave</h3>
-                <!-- Los elementos se llenarán mediante JavaScript para orden aleatorio si se desea, o estricto -->
+            <!-- Columna Izquierda: NODO ÚNICO "PREHISTORIA" (4 cols en tablet/desktop) -->
+            <div class="col-span-4 md:col-span-4 flex flex-col justify-center items-center h-full z-20" id="left-column">
+                <div id="prehistoria-node" onclick="seleccionarOrigen()" class="w-full h-4/5 max-h-72 bg-gradient-to-br from-amber-500 to-amber-700 text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-lg cursor-pointer border-4 border-amber-300 text-center flex flex-col items-center justify-center transition-all select-none ring-4 ring-amber-400">
+                    <div class="text-3xl sm:text-5xl mb-1 sm:mb-2 animate-bounce">🦣</div>
+                    <h2 class="font-heading text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-wide uppercase drop-shadow">
+                        LA PREHISTORIA
+                    </h2>
+                    <span class="text-amber-100 text-[10px] sm:text-xs mt-2 font-bold bg-amber-900/40 px-2.5 py-1 rounded-full">
+                        ✓ Seleccionado
+                    </span>
+                </div>
             </div>
 
-            <!-- Columna Derecha: Descripciones -->
-            <div class="space-y-4 z-20" id="right-column">
-                <h3 class="font-heading text-lg text-slate-700 mb-3 border-b-2 border-amber-100 pb-1">Descripciones / Respuestas</h3>
-                <!-- Los elementos se llenarán mediante JavaScript -->
+            <!-- Columna Derecha: Rejilla de 8 Tarjetas (2 cols x 4 filas) -->
+            <div class="col-span-8 md:col-span-8 grid grid-cols-2 gap-2 sm:gap-3 h-full max-h-full overflow-hidden z-20" id="right-column">
+                <!-- Las 8 tarjetas se renderizan dinámicamente con JavaScript -->
             </div>
 
         </div>
 
-        <!-- Panel de Mensajes y Resultados -->
-        <div id="result-box" class="hidden mt-8 p-4 rounded-2xl text-center font-medium transition-all duration-300"></div>
+        <!-- Panel de Mensajes Compacto -->
+        <div id="result-box" class="hidden flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-semibold transition-all"></div>
 
-        <!-- Botones de Acción -->
-        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <button id="check-btn" onclick="comprobarResultados()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 cursor-pointer">
-                ✨ Comprobar Respuestas
+        <!-- Botones de Acción en Barra Inferior -->
+        <div class="flex-none pt-1 flex items-center justify-center gap-3">
+            <button id="check-btn" onclick="comprobarResultados()" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl shadow transition-all flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                <span>✨ Comprobar</span>
             </button>
-            <button id="reset-btn" onclick="reiniciarJuego()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 px-6 rounded-2xl shadow transition-all cursor-pointer">
-                🔄 Reiniciar
+            <button id="reset-btn" onclick="reiniciarJuego()" class="bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 font-bold py-2 px-4 rounded-xl shadow transition-all text-xs sm:text-sm cursor-pointer">
+                <span>🔄 Reiniciar</span>
             </button>
         </div>
 
     </div>
 
-    <!-- Script de lógica interactiva -->
+    <!-- Script de lógica e ilustraciones SVG optimizados -->
     <script>
-        // Definición de los 5 pares basados en la ficha de la Prehistoria
-        const datosOriginales = [
-            { id: 1, izquierda: "🏡 ¿Dónde vivía la gente?", derecha: "En cuevas naturales", iconoLeft: "⛺", iconoRight: "🪨" },
-            { id: 2, izquierda: "🧥 ¿Qué usaban para abrigarse?", derecha: "Pieles de animales", iconoLeft: "🪵", iconoRight: "🐅" },
-            { id: 3, izquierda: "🪨 ¿De qué eran las herramientas?", derecha: "De piedra tallada", iconoLeft: "🔨", iconoRight: "⛏️" },
-            { id: 4, izquierda: "🔥 ¿Qué usaban para cocinar y calentarse?", derecha: "El fuego", iconoLeft: "⚡", iconoRight: "🔥" },
-            { id: 5, izquierda: "🏹 ¿Qué actividad realizaban para comer?", derecha: "La caza y la pesca", iconoLeft: "🎯", iconoRight: "🍖" }
+        // 8 ítems en total para encajar perfectamente (5 de Prehistoria + 3 distractores)
+        const elementosDerecha = [
+            {
+                id: "cueva",
+                titulo: "Pinturas Rupestres",
+                subtitulo: "Cuevas y arte en piedra",
+                esPrehistoria: true,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <path d="M6 50c0-18 10-30 26-30 6 0 11 3 15 7 5-5 11-7 11-7S6 32 6 50z" fill="#78350f"/>
+                    <path d="M22 50h20c0-10-5-16-10-16s-10 6-10 16z" fill="#292524"/>
+                    <path d="M42 28c2-2 4-2 6-4" stroke="#f97316" stroke-width="3.5" stroke-linecap="round"/>
+                    <circle cx="40" cy="30" r="3" fill="#f97316"/>
+                </svg>`
+            },
+            {
+                id: "fuego",
+                titulo: "Hoguera y Fuego",
+                subtitulo: "Para cocinar y calentar",
+                esPrehistoria: true,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <circle cx="20" cy="48" r="4" fill="#64748b"/>
+                    <circle cx="32" cy="50" r="5" fill="#475569"/>
+                    <circle cx="44" cy="48" r="4" fill="#64748b"/>
+                    <path d="M32 12c4 8 12 14 12 24 0 7-5 12-12 12s-12-5-12-12c0-10 8-16 12-24z" fill="#ef4444"/>
+                    <path d="M32 24c2 5 7 9 7 15 0 4-3 7-7 7s-7-3-7-7c0-6 5-10 7-15z" fill="#f59e0b"/>
+                </svg>`
+            },
+            {
+                id: "herramientas_piedra",
+                titulo: "Piedra Tallada",
+                subtitulo: "Bifaz / Hacha paleolítica",
+                esPrehistoria: true,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <!-- Mango de madera con amarre de cuerda -->
+                    <path d="M14 52l22-26" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M26 34l8-8" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+                    <!-- Piedra tallada / Bifaz con bordes y biseles -->
+                    <path d="M28 8c8 0 24 10 24 22 0 8-10 14-18 14-8 0-14-6-14-14 0-12 10-22 8-22z" fill="#64748b"/>
+                    <path d="M30 12c5 2 16 8 16 16 0 5-6 9-11 9" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Lascas y marcas de tallado -->
+                    <path d="M34 16l-4 6M42 22l-6 4M38 30l-5 4" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: "pieles",
+                titulo: "Pieles de Animales",
+                subtitulo: "Vestimenta de caza",
+                esPrehistoria: true,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <path d="M20 12l12 4 12-4 6 16-8 4v22H22V32l-8-4 6-16z" fill="#d97706"/>
+                    <path d="M22 14l10 3 10-3" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: "vasija_hueso",
+                titulo: "Vasija y Hueso",
+                subtitulo: "Cerámica rudimentaria",
+                esPrehistoria: true,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <path d="M16 24h20l4 24H12l4-24z" fill="#b45309"/>
+                    <path d="M14 20h24v4H14z" fill="#d97706"/>
+                    <path d="M44 16l12 12M42 14a3 3 0 0 0-4 4" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+                </svg>`
+            },
+            {
+                id: "piramide",
+                titulo: "Pirámide Egipcia",
+                subtitulo: "Edad Antigua",
+                esPrehistoria: false,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <path d="M32 10L4 52h56L32 10z" fill="#f59e0b"/>
+                    <path d="M32 10l24 42H32V10z" fill="#d97706"/>
+                </svg>`
+            },
+            {
+                id: "carabela",
+                titulo: "Carabela",
+                subtitulo: "Barco de descubrimientos",
+                esPrehistoria: false,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <!-- Olas del mar -->
+                    <path d="M4 54c6 0 8-3 14-3s8 3 14 3 8-3 14-3 8 3 14 3" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <!-- Casco de madera del barco -->
+                    <path d="M10 38c2 9 12 14 22 14s20-5 22-14H10z" fill="#78350f"/>
+                    <path d="M8 38h48" stroke="#451a03" stroke-width="2"/>
+                    <!-- Mástiles -->
+                    <path d="M24 14v24M42 18v20" stroke="#451a03" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Velas cuadradas desplegadas -->
+                    <path d="M14 18c6-2 14-2 20 0-2 6-2 12 0 18-6 2-14 2-20 0 2-6 2-12 0-18z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <path d="M34 22c5-1 12-1 16 0-1 4-1 9 0 14-4 1-11 1-16 0 1-5 1-10 0-14z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+                    <!-- Cruces rojas en la vela principal -->
+                    <path d="M24 23v8M20 27h8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Bandera en el mástil -->
+                    <path d="M24 14l6-3-6-3" fill="#dc2626"/>
+                </svg>`
+            },
+            {
+                id: "castillo",
+                titulo: "Castillo Medieval",
+                subtitulo: "Edad Media",
+                esPrehistoria: false,
+                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
+                    <path d="M12 24h10v28H12zM42 24h10v28H42zM22 34h20v18H22z" fill="#94a3b8"/>
+                    <path d="M28 42h8v10h-8z" fill="#334155"/>
+                </svg>`
+            }
         ];
 
-        let izquierdaSeleccionada = null;
-        let conexiones = {}; // clave: idIzq, valor: idDer
-        let lineasDibujadas = []; // Almacena pares conectados para pintar líneas
-
-        let izquierdaMezclada = [];
-        let derechaMezclada = [];
+        let conexiones = new Set();
+        let elementosOrdenados = [];
+        let evaluado = false;
 
         function iniciarJuego() {
-            conexiones = {};
-            lineasDibujadas = [];
-            izquierdaSeleccionada = null;
-            document.getElementById('result-box').classList.add('hidden');
-            document.getElementById('check-btn').disabled = false;
-            document.getElementById('check-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            conexiones.clear();
+            evaluado = false;
 
-            // Clonar y mezclar elementos para que no estén ordenados idénticamente
-            izquierdaMezclada = [...datosOriginales].sort(() => Math.random() - 0.5);
-            derechaMezclada = [...datosOriginales].sort(() => Math.random() - 0.5);
+            const resultBox = document.getElementById('result-box');
+            resultBox.classList.add('hidden');
+            resultBox.innerHTML = '';
+            
+            const checkBtn = document.getElementById('check-btn');
+            checkBtn.disabled = false;
+            checkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
 
-            renderizarColumnas();
-            actualizarCanvas();
+            elementosOrdenados = [...elementosDerecha].sort(() => Math.random() - 0.5);
+
+            renderizarDerecha();
+            setTimeout(actualizarCanvas, 50);
         }
 
-        function renderizarColumnas() {
-            const colIzq = document.getElementById('left-column');
+        function renderizarDerecha() {
             const colDer = document.getElementById('right-column');
-
-            // Limpiar contenido anterior (manteniendo el título)
-            const tituloIzq = colIzq.firstElementChild;
-            const tituloDer = colDer.firstElementChild;
-            colIzq.innerHTML = '';
             colDer.innerHTML = '';
-            colIzq.appendChild(tituloIzq);
-            colDer.appendChild(tituloDer);
 
-            // Renderizar elementos de la izquierda
-            izquierdaMezclada.forEach(item => {
+            elementosOrdenados.forEach(item => {
                 const div = document.createElement('div');
-                div.className = `item-card bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl cursor-pointer flex items-center justify-between shadow-sm select-none`;
-                div.dataset.id = item.id;
-                div.id = `left-${item.id}`;
-                div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">${item.iconoLeft}</span>
-                        <span class="font-semibold text-slate-800 text-sm sm:text-base">${item.izquierda}</span>
-                    </div>
-                    <span class="w-6 h-6 rounded-full border-2 border-amber-400 flex items-center justify-center text-xs font-bold text-amber-700 dot-indicator">·</span>
-                `;
-                div.onclick = () => seleccionarIzquierda(item.id, div);
-                colIzq.appendChild(div);
-            });
-
-            // Renderizar elementos de la derecha
-            derechaMezclada.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `item-card bg-blue-50 border-2 border-blue-200 p-4 rounded-2xl cursor-pointer flex items-center justify-between shadow-sm select-none`;
+                div.className = `item-card bg-slate-50 border-2 border-slate-200 p-1.5 sm:p-2.5 rounded-xl cursor-pointer flex items-center justify-between shadow-sm select-none hover:border-amber-400 h-full`;
                 div.dataset.id = item.id;
                 div.id = `right-${item.id}`;
                 div.innerHTML = `
-                    <span class="w-6 h-6 rounded-full border-2 border-blue-400 flex items-center justify-center text-xs font-bold text-blue-700 dot-indicator">·</span>
-                    <div class="flex items-center gap-3 text-right flex-row-reverse">
-                        <span class="text-2xl">${item.iconoRight}</span>
-                        <span class="font-semibold text-slate-800 text-sm sm:text-base">${item.derecha}</span>
+                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-[10px] sm:text-xs font-bold text-slate-400 flex-shrink-0 dot-indicator">·</span>
+                        <div class="p-1 bg-white rounded-lg border border-slate-200 flex-shrink-0">${item.svg}</div>
+                        <div class="min-w-0">
+                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate leading-tight">${item.titulo}</h4>
+                            <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">${item.subtitulo}</p>
+                        </div>
                     </div>
                 `;
-                div.onclick = () => seleccionarDerecha(item.id, div);
+                div.onclick = () => tocarTarjetaDerecha(item.id);
                 colDer.appendChild(div);
             });
         }
 
-        function seleccionarIzquierda(id, elementoDom) {
-            // Si ya está conectado, podemos permitir cambiarlo o borrarlo
-            // Desmarcar anterior izquierda seleccionada
-            document.querySelectorAll('#left-column .item-card').forEach(el => {
-                el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-100');
-            });
-
-            izquierdaSeleccionada = id;
-            elementoDom.classList.add('ring-4', 'ring-amber-400', 'bg-amber-100');
+        function seleccionarOrigen() {
+            // El origen "Prehistoria" se mantiene siempre activo para facilidad de uso
         }
 
-        function seleccionarDerecha(idDer, elementoDom) {
-            if (!izquierdaSeleccionada) {
-                mostrarAlertaTemporal("Primero haz clic en un concepto de la columna izquierda.", "warning");
-                return;
+        function tocarTarjetaDerecha(id) {
+            if (evaluado) return;
+
+            if (conexiones.has(id)) {
+                conexiones.delete(id);
+            } else {
+                conexiones.add(id);
             }
 
-            // Asignar conexión (borrar si la izquierda ya tenía otra conexión previa)
-            // Eliminar conexión previa de esta izquierda si existía
-            delete conexiones[izquierdaSeleccionada];
-
-            // Registrar nueva conexión
-            conexiones[izquierdaSeleccionada] = idDer;
-
-            // Limpiar estilos de selección en izquierda
-            document.querySelectorAll('#left-column .item-card').forEach(el => {
-                el.classList.remove('ring-4', 'ring-amber-400', 'bg-amber-100');
-            });
-            izquierdaSeleccionada = null;
-
-            actualizarCanvas();
             actualizarEstilosConectados();
+            actualizarCanvas();
         }
 
         function actualizarEstilosConectados() {
-            // Marcar visualmente tarjetas que tienen conexión
-            document.querySelectorAll('#left-column .item-card').forEach(el => {
-                const id = parseInt(el.dataset.id);
-                if (conexiones[id]) {
-                    el.classList.add('border-emerald-400', 'bg-emerald-50');
-                } else {
-                    el.classList.remove('border-emerald-400', 'bg-emerald-50');
-                }
-            });
-
-            const conectadasDer = Object.values(conexiones);
             document.querySelectorAll('#right-column .item-card').forEach(el => {
-                const id = parseInt(el.dataset.id);
-                if (conectadasDer.includes(id)) {
-                    el.classList.add('border-emerald-400', 'bg-emerald-50');
+                const id = el.dataset.id;
+                const dot = el.querySelector('.dot-indicator');
+                if (conexiones.has(id)) {
+                    el.classList.add('border-amber-500', 'bg-amber-50');
+                    el.classList.remove('border-slate-200', 'bg-slate-50');
+                    if (dot) {
+                        dot.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-amber-600 bg-amber-500 flex items-center justify-center text-[10px] sm:text-xs font-bold text-white flex-shrink-0 dot-indicator";
+                        dot.textContent = "✓";
+                    }
                 } else {
-                    el.classList.remove('border-emerald-400', 'bg-emerald-50');
+                    el.classList.remove('border-amber-500', 'bg-amber-50', 'border-emerald-500', 'bg-emerald-100', 'border-rose-500', 'bg-rose-100');
+                    el.classList.add('border-slate-200', 'bg-slate-50');
+                    if (dot) {
+                        dot.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-[10px] sm:text-xs font-bold text-slate-400 flex-shrink-0 dot-indicator";
+                        dot.textContent = "·";
+                    }
                 }
             });
         }
@@ -219,6 +287,8 @@
         function actualizarCanvas() {
             const canvas = document.getElementById('lines-canvas');
             const container = document.getElementById('game-container');
+            if (!canvas || !container) return;
+
             const rectContainer = container.getBoundingClientRect();
 
             canvas.width = container.clientWidth;
@@ -227,79 +297,90 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#3b82f6'; // Azul bonito para las líneas
+            const nodeIzq = document.getElementById('prehistoria-node');
+            if (!nodeIzq) return;
+            const rectIzq = nodeIzq.getBoundingClientRect();
+            const x1 = rectIzq.right - rectContainer.left;
+            const y1 = rectIzq.top + rectIzq.height / 2 - rectContainer.top;
 
-            for (const [idIzq, idDer] of Object.entries(conexiones)) {
-                const elIzq = document.getElementById(`left-${idIzq}`);
-                const elDer = document.getElementById(`right-${idDer}`);
+            ctx.lineWidth = 3.5;
 
-                if (elIzq && elDer) {
-                    const rectIzq = elIzq.getBoundingClientRect();
+            conexiones.forEach(idTarget => {
+                const elDer = document.getElementById(`right-${idTarget}`);
+                if (elDer) {
                     const rectDer = elDer.getBoundingClientRect();
-
-                    // Coordenadas relativas al contenedor del juego
-                    const x1 = rectIzq.right - rectContainer.left - 12;
-                    const y1 = rectIzq.top + rectIzq.height / 2 - rectContainer.top;
-                    const x2 = rectDer.left - rectContainer.left + 12;
+                    const x2 = rectDer.left - rectContainer.left + 8;
                     const y2 = rectDer.top + rectDer.height / 2 - rectContainer.top;
+
+                    const itemObj = elementosDerecha.find(e => e.id === idTarget);
+                    ctx.strokeStyle = '#f59e0b';
+
+                    if (evaluado && itemObj) {
+                        ctx.strokeStyle = itemObj.esPrehistoria ? '#10b981' : '#ef4444';
+                    }
 
                     ctx.beginPath();
                     ctx.moveTo(x1, y1);
-                    ctx.bezierCurveTo(x1 + 60, y1, x2 - 60, y2, x2, y2);
+                    ctx.bezierCurveTo(x1 + 40, y1, x2 - 40, y2, x2, y2);
                     ctx.stroke();
                 }
-            }
+            });
         }
 
         function comprobarResultados() {
-            const totalPares = datosOriginales.length;
-            const totalConectadas = Object.keys(conexiones).length;
-
-            if (totalConectadas < totalPares) {
-                mostrarAlertaTemporal(`¡Te faltan por unir ${totalPares - totalConectadas} pares! Completa todas las conexiones.`, "warning");
+            if (conexiones.size === 0) {
+                mostrarAlertaTemporal("Toca al menos un dibujo de la derecha para conectarlo.");
                 return;
             }
 
+            evaluado = true;
             let aciertos = 0;
-            for (const [idIzq, idDer] of Object.entries(conexiones)) {
-                if (parseInt(idIzq) === parseInt(idDer)) {
-                    aciertos++;
+            let erroresNuevos = 0;
+            const totalPrehistoria = elementosDerecha.filter(e => e.esPrehistoria).length;
+
+            document.querySelectorAll('#right-column .item-card').forEach(el => {
+                const id = el.dataset.id;
+                const itemObj = elementosDerecha.find(e => e.id === id);
+
+                if (conexiones.has(id)) {
+                    if (itemObj.esPrehistoria) {
+                        aciertos++;
+                        el.classList.add('border-emerald-500', 'bg-emerald-100');
+                    } else {
+                        erroresNuevos++;
+                        el.classList.add('border-rose-500', 'bg-rose-100');
+                    }
                 }
-            }
+            });
+
+            actualizarCanvas();
 
             const resultBox = document.getElementById('result-box');
             resultBox.classList.remove('hidden');
 
-            if (aciertos === totalPares) {
-                resultBox.className = "mt-8 p-6 rounded-2xl text-center font-medium bg-emerald-100 border-2 border-emerald-400 text-emerald-800 shadow-md animate-bounce";
-                resultBox.innerHTML = `🎉 ¡EXCELENTE TRABAJO! Has conseguido <strong>5 de 5</strong> aciertos. ¡Eres un experto en la Prehistoria! 🌟`;
+            if (aciertos === totalPrehistoria && erroresNuevos === 0) {
+                resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-emerald-100 border border-emerald-400 text-emerald-900";
+                resultBox.innerHTML = `🎉 ¡Perfecto! Acertaste los 5 elementos de la Prehistoria sin fallos.`;
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
+                }
             } else {
-                resultBox.className = "mt-8 p-6 rounded-2xl text-center font-medium bg-amber-100 border-2 border-amber-400 text-amber-900 shadow-md";
-                resultBox.innerHTML = `💡 Has conseguido <strong>${aciertos} de ${totalPares}</strong> aciertos. ¡Revisa las conexiones y vuelve a intentarlo!`;
+                resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-amber-100 border border-amber-400 text-amber-900";
+                resultBox.innerHTML = `💡 Acertaste ${aciertos} de ${totalPrehistoria}. ${erroresNuevos > 0 ? `Uniste ${erroresNuevos} de otra época.` : ''}`;
             }
-
-            // Deshabilitar botón comprobar hasta reiniciar o cambiar
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
 
         function reiniciarJuego() {
             iniciarJuego();
         }
 
-        function mostrarAlertaTemporal(mensaje, tipo) {
+        function mostrarAlertaTemporal(mensaje) {
             const resultBox = document.getElementById('result-box');
             resultBox.classList.remove('hidden');
-            resultBox.className = "mt-8 p-4 rounded-2xl text-center font-medium bg-amber-50 border-2 border-amber-300 text-amber-800 shadow";
+            resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-amber-50 border border-amber-300 text-amber-900";
             resultBox.innerHTML = `⚠️ ${mensaje}`;
-            setTimeout(() => {
-                if(Object.keys(conexiones).length === 0) {
-                    resultBox.classList.add('hidden');
-                }
-            }, 3500);
         }
 
-        // Inicializar al cargar la página y recalcular en redimensionamiento
         window.onload = iniciarJuego;
         window.onresize = actualizarCanvas;
     </script>
