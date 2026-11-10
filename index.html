@@ -71,7 +71,7 @@
                 </div>
 
                 <!-- Right Column: Target Options (Grid of 8 items) -->
-                <div class="col-span-8 sm:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+                <div id="cards-container" class="col-span-8 sm:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
                     
                     <!-- Item 1: Cueva -->
                     <div data-id="cueva" data-correct="true" onclick="toggleConnection('cueva')" 
@@ -122,7 +122,7 @@
                         <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Hoguera de Fuego</span>
                     </div>
 
-                    <!-- Item 4: Carabela (Distractor Mejorado) -->
+                    <!-- Item 4: Carabela (Distractor) -->
                     <div data-id="carabela" data-correct="false" onclick="toggleConnection('carabela')" 
                          class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
                         <div id="dot-carabela" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
@@ -141,7 +141,7 @@
                         <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Barco Carabela</span>
                     </div>
 
-                    <!-- Item 5: Piedra tallada (Mejorado) -->
+                    <!-- Item 5: Piedra tallada -->
                     <div data-id="piedra" data-correct="true" onclick="toggleConnection('piedra')" 
                          class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
                         <div id="dot-piedra" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
@@ -190,19 +190,29 @@
                         <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Castillo Medieval</span>
                     </div>
 
-                    <!-- Item 8: Vasija y Hueso -->
+                    <!-- Item 8: Vasija y Hueso (ILUSTRACIÓN MEJORADA) -->
                     <div data-id="vasija" data-correct="true" onclick="toggleConnection('vasija')" 
                          class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
                         <div id="dot-vasija" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
                         <div class="w-full h-16 md:h-24 flex items-center justify-center">
                             <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
-                                <path d="M 25 25 C 25 20, 45 20, 45 25 C 45 30, 55 35, 50 55 C 45 68, 25 68, 20 55 C 15 35, 25 30, 25 25 Z" fill="#D97706" stroke="#78350F" stroke-width="2"/>
-                                <path d="M 20 38 Q 35 43 50 38" stroke="#78350F" stroke-width="2" fill="none"/>
-                                <path d="M 60 55 L 85 30" stroke="#F8FAFC" stroke-width="7" stroke-linecap="round"/>
-                                <circle cx="59" cy="56" r="4.5" fill="#F8FAFC"/>
-                                <circle cx="62" cy="52" r="4.5" fill="#F8FAFC"/>
-                                <circle cx="84" cy="28" r="4.5" fill="#F8FAFC"/>
-                                <circle cx="87" cy="32" r="4.5" fill="#F8FAFC"/>
+                                <!-- Vasija al fondo -->
+                                <path d="M 20 22 C 20 18, 38 18, 38 22 C 38 26, 46 30, 42 48 C 38 60, 20 60, 16 48 C 12 30, 20 26, 20 22 Z" fill="#D97706" stroke="#78350F" stroke-width="2"/>
+                                <path d="M 16 34 Q 28 38 40 34" stroke="#78350F" stroke-width="2" fill="none"/>
+                                <path d="M 17 44 Q 28 48 39 44" stroke="#78350F" stroke-width="2" fill="none"/>
+
+                                <!-- Hueso grande en primer plano -->
+                                <g transform="translate(10, 5)">
+                                    <!-- Cuerpo del hueso -->
+                                    <path d="M 40 45 L 75 25" stroke="#F8FAFC" stroke-width="11" stroke-linecap="round"/>
+                                    <path d="M 40 45 L 75 25" stroke="#CBD5E1" stroke-width="11" stroke-linecap="round" opacity="0.3"/>
+                                    <!-- Extremo izquierdo -->
+                                    <circle cx="37" cy="40" r="7" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                    <circle cx="43" cy="50" r="7" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                    <!-- Extremo derecho -->
+                                    <circle cx="72" cy="20" r="7" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                    <circle cx="79" cy="28" r="7" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                </g>
                             </svg>
                         </div>
                         <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Vasija y Hueso</span>
@@ -230,7 +240,7 @@
     </div>
 
     <script>
-        let isSourceSelected = true; // Selected by default
+        let isSourceSelected = true;
         let activeConnections = new Set();
         let isChecked = false;
 
@@ -268,7 +278,7 @@
             const svg = document.getElementById('svg-canvas');
             const sourceDot = document.getElementById('dot-source');
             
-            svg.innerHTML = ''; // Clear SVG
+            svg.innerHTML = '';
 
             if (!sourceDot) return;
 
@@ -280,22 +290,20 @@
 
             activeConnections.forEach(targetId => {
                 const targetDot = document.getElementById(`dot-${targetId}`);
-                const targetCard = targetDot.closest('.target-card');
+                const targetCard = targetDot ? targetDot.closest('.target-card') : null;
                 
-                if (targetDot) {
+                if (targetDot && targetCard) {
                     const targetRect = targetDot.getBoundingClientRect();
                     const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
                     const endY = targetRect.top + targetRect.height / 2 - svgRect.top;
 
-                    // Calculate Bezier curve control points
                     const deltaX = Math.abs(endX - startX) * 0.5;
                     const controlX1 = startX + deltaX;
                     const controlY1 = startY;
                     const controlX2 = endX - deltaX;
                     const controlY2 = endY;
 
-                    // Color based on check state
-                    let strokeColor = "#F59E0B"; // Default orange
+                    let strokeColor = "#F59E0B";
                     let strokeWidth = "4";
 
                     if (isChecked) {
@@ -328,7 +336,7 @@
 
             isChecked = true;
             let correctCount = 0;
-            let totalCorrectAnswers = 5; // Hay 5 opciones correctas de la ficha
+            let totalCorrectAnswers = 5;
             let incorrectSelections = 0;
 
             const cards = document.querySelectorAll('.target-card');
@@ -347,7 +355,6 @@
                     card.classList.add('incorrect-glow');
                     incorrectSelections++;
                 } else if (!isSelected && isCorrectTarget) {
-                    // Missed correct target
                     card.classList.add('border-amber-400');
                 }
             });
@@ -361,7 +368,6 @@
                 feedback.className = "mb-2 p-2 rounded-xl text-center font-bold text-sm md:text-base bg-emerald-100 text-emerald-800 border border-emerald-300";
                 feedback.innerHTML = "🎉 ¡EXCELENTE! Has encontrado todos los elementos de la Prehistoria. ¡10/10! 🏆";
                 
-                // Confetti explosion
                 confetti({
                     particleCount: 100,
                     spread: 70,
@@ -370,6 +376,16 @@
             } else {
                 feedback.className = "mb-2 p-2 rounded-xl text-center font-bold text-sm md:text-base bg-amber-100 text-amber-800 border border-amber-300";
                 feedback.innerHTML = `Has acertado ${correctCount} de ${totalCorrectAnswers} elementos de la Prehistoria. ${incorrectSelections > 0 ? `(Has unido ${incorrectSelections} de otra época)` : ''} ¡Inténtalo de nuevo! 💪`;
+            }
+        }
+
+        function shuffleCards() {
+            const container = document.getElementById('cards-container');
+            const cards = Array.from(container.children);
+            
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                container.appendChild(cards[j]);
             }
         }
 
@@ -383,7 +399,10 @@
             });
 
             document.getElementById('feedback-panel').classList.add('hidden');
-            updateCanvas();
+            
+            shuffleCards();
+            
+            setTimeout(updateCanvas, 50);
         }
     </script>
 </body>
