@@ -2,387 +2,389 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Examen Interactivo: La Prehistoria</title>
-    <!-- Tailwind CSS para un diseño limpio y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Fredoka e Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Canvas Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 50%, #e0f2fe 100%);
+            font-family: 'Fredoka', cursive, sans-serif;
             touch-action: manipulation;
         }
-        h1, h2, h3, .font-heading {
-            font-family: 'Fredoka', cursive, sans-serif;
+        .card-shadow {
+            box-shadow: 0 4px 0px 0px rgba(0,0,0,0.15);
         }
-        .item-card {
-            transition: all 0.15s ease;
+        .card-shadow-lg {
+            box-shadow: 0 6px 0px 0px rgba(0,0,0,0.2);
         }
-        .item-card:active {
-            transform: scale(0.97);
+        .selected-glow {
+            box-shadow: 0 0 0 4px #F59E0B, 0 6px 0px 0px rgba(0,0,0,0.2);
         }
-        canvas#lines-canvas {
-            pointer-events: none;
+        .correct-glow {
+            box-shadow: 0 0 0 4px #10B981, 0 4px 0px 0px rgba(0,0,0,0.15);
+        }
+        .incorrect-glow {
+            box-shadow: 0 0 0 4px #EF4444, 0 4px 0px 0px rgba(0,0,0,0.15);
         }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden p-2 sm:p-4 flex flex-col justify-between box-border select-none">
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col justify-between p-2 md:p-4 overflow-y-auto">
 
-    <!-- Contenedor Principal (100% fit sin scroll) -->
-    <div class="max-w-6xl w-full mx-auto bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl p-3 sm:p-5 border-2 sm:border-4 border-amber-300 flex flex-col justify-between h-full overflow-hidden relative">
-        
-        <!-- Cabecera Compacta -->
-        <div class="text-center flex-none">
-            <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-900 text-xs font-bold px-3 py-0.5 rounded-full border border-amber-200">
-                <span>🦴 Ciencias Sociales</span>
-                <span>•</span>
-                <span>Unir con flechas</span>
-            </div>
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 leading-tight mt-0.5">EDAD DE LA PREHISTORIA</h1>
-            <p class="text-slate-600 text-xs sm:text-sm font-medium">
-                Toca las <strong>5 tarjetas</strong> de la derecha que pertenecen a la Prehistoria. ¡Cuidado con los distractores!
+    <div class="max-w-6xl w-full mx-auto flex flex-col h-full">
+        <!-- Header -->
+        <header class="text-center mb-2 flex-shrink-0">
+            <h1 class="text-xl md:text-3xl font-bold text-amber-900 tracking-wide uppercase">
+                🦴 Examen de la Prehistoria 🦴
+            </h1>
+            <p class="text-xs md:text-sm text-amber-800 font-medium">
+                Selecciona la etiqueta y luego une los objetos que se daban en esta etapa.
             </p>
-        </div>
+        </header>
 
-        <!-- Zona de Juego Central (Flex grow sin scroll) -->
-        <div class="relative flex-1 grid grid-cols-12 gap-3 sm:gap-6 my-2 items-center min-h-0" id="game-container">
-            
-            <!-- Canvas para dibujar las líneas dinámicas -->
-            <canvas id="lines-canvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+        <!-- Main Interactive Area -->
+        <div class="relative flex-1 flex flex-col justify-center my-auto min-h-[480px]">
+            <!-- SVG Canvas overlay for lines -->
+            <svg id="svg-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10" style="min-height: 100%;"></svg>
 
-            <!-- Columna Izquierda: NODO ÚNICO "PREHISTORIA" (4 cols en tablet/desktop) -->
-            <div class="col-span-4 md:col-span-4 flex flex-col justify-center items-center h-full z-20" id="left-column">
-                <div id="prehistoria-node" onclick="seleccionarOrigen()" class="w-full h-4/5 max-h-72 bg-gradient-to-br from-amber-500 to-amber-700 text-white p-3 sm:p-5 rounded-2xl sm:rounded-3xl shadow-lg cursor-pointer border-4 border-amber-300 text-center flex flex-col items-center justify-center transition-all select-none ring-4 ring-amber-400">
-                    <div class="text-3xl sm:text-5xl mb-1 sm:mb-2 animate-bounce">🦣</div>
-                    <h2 class="font-heading text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-wide uppercase drop-shadow">
-                        LA PREHISTORIA
-                    </h2>
-                    <span class="text-amber-100 text-[10px] sm:text-xs mt-2 font-bold bg-amber-900/40 px-2.5 py-1 rounded-full">
-                        ✓ Seleccionado
-                    </span>
+            <div class="grid grid-cols-12 gap-3 md:gap-6 items-center relative z-20 my-auto">
+                
+                <!-- Left Column: Source Category -->
+                <div class="col-span-4 sm:col-span-4 flex flex-col justify-center items-center">
+                    <div id="source-card" 
+                         onclick="selectSource()" 
+                         class="w-full max-w-[200px] bg-amber-500 hover:bg-amber-600 text-white rounded-2xl p-3 md:p-4 text-center cursor-pointer transition-all duration-200 card-shadow-lg transform active:scale-95 border-2 border-amber-600 relative select-none selected-glow">
+                        
+                        <div class="bg-amber-100 text-amber-900 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mx-auto mb-2 text-lg md:text-2xl font-bold shadow-inner border border-amber-300">
+                            1
+                        </div>
+                        <h2 class="text-sm md:text-xl font-bold uppercase tracking-wider leading-tight">
+                            EDAD DE LA PREHISTORIA
+                        </h2>
+                        <div class="mt-2 text-[10px] md:text-xs bg-amber-600/50 py-1 px-2 rounded-lg font-normal">
+                            Haz clic para unir ➔
+                        </div>
+
+                        <!-- Anchor Dot -->
+                        <div id="dot-source" class="absolute -right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-amber-700 border-2 border-white rounded-full shadow-md"></div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Target Options (Grid of 8 items) -->
+                <div class="col-span-8 sm:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+                    
+                    <!-- Item 1: Cueva -->
+                    <div data-id="cueva" data-correct="true" onclick="toggleConnection('cueva')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-cueva" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <path d="M10 70 C 10 20, 90 20, 90 70 Z" fill="#B45309" stroke="#78350F" stroke-width="3"/>
+                                <path d="M35 70 C 35 45, 65 45, 65 70 Z" fill="#451A03"/>
+                                <path d="M25 40 Q 30 35 35 42 Q 40 48 45 40" stroke="#EF4444" stroke-width="2" fill="none"/>
+                                <path d="M60 35 L 75 40 L 70 50 Z" fill="#DC2626"/>
+                                <circle cx="30" cy="65" r="4" fill="#78350F"/>
+                                <circle cx="72" cy="67" r="3" fill="#78350F"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Cueva con pinturas</span>
+                    </div>
+
+                    <!-- Item 2: Pirámide (Distractor) -->
+                    <div data-id="piramide" data-correct="false" onclick="toggleConnection('piramide')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-piramide" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <polygon points="50,15 15,70 85,70" fill="#FBBF24" stroke="#D97706" stroke-width="2"/>
+                                <polygon points="50,15 65,70 85,70" fill="#D97706"/>
+                                <line x1="27" y1="50" x2="73" y2="50" stroke="#B45309" stroke-width="1.5"/>
+                                <line x1="38" y1="33" x2="62" y2="33" stroke="#B45309" stroke-width="1.5"/>
+                                <circle cx="75" cy="20" r="6" fill="#FEF08A"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Pirámide Egipcia</span>
+                    </div>
+
+                    <!-- Item 3: Fuego -->
+                    <div data-id="fuego" data-correct="true" onclick="toggleConnection('fuego')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-fuego" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <ellipse cx="50" cy="68" rx="30" ry="6" fill="#78350F"/>
+                                <path d="M30 65 L 70 70 M 35 70 L 65 63" stroke="#451A03" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M50 15 C 65 35, 75 45, 65 65 C 55 70, 45 70, 35 65 C 25 45, 35 35, 50 15 Z" fill="#EF4444"/>
+                                <path d="M50 28 C 60 42, 68 50, 60 65 C 52 68, 48 68, 40 65 C 32 50, 40 42, 50 28 Z" fill="#F59E0B"/>
+                                <path d="M50 42 C 55 50, 60 55, 55 65 C 50 67, 45 67, 45 65 C 40 55, 45 50, 50 42 Z" fill="#FEF08A"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Hoguera de Fuego</span>
+                    </div>
+
+                    <!-- Item 4: Carabela (Distractor Mejorado) -->
+                    <div data-id="carabela" data-correct="false" onclick="toggleConnection('carabela')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-carabela" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <path d="M 10 65 Q 25 60 40 65 Q 65 70 90 65 L 85 45 L 20 45 Z" fill="#854D0E" stroke="#451A03" stroke-width="2"/>
+                                <line x1="35" y1="45" x2="35" y2="10" stroke="#451A03" stroke-width="3"/>
+                                <line x1="65" y1="45" x2="65" y2="15" stroke="#451A03" stroke-width="2.5"/>
+                                <path d="M 37 15 Q 52 25 37 38 Z" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                <path d="M 40 23 L 48 23 M 44 19 L 44 27" stroke="#DC2626" stroke-width="2"/>
+                                <path d="M 67 20 Q 78 28 67 40 Z" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>
+                                <path d="M 35 10 L 22 14 L 35 17 Z" fill="#DC2626"/>
+                                <path d="M 5 68 Q 25 63 50 68 Q 75 73 95 68 L 95 75 L 5 75 Z" fill="#38BDF8" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Barco Carabela</span>
+                    </div>
+
+                    <!-- Item 5: Piedra tallada (Mejorado) -->
+                    <div data-id="piedra" data-correct="true" onclick="toggleConnection('piedra')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-piedra" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <rect x="42" y="30" width="12" height="42" rx="4" fill="#A16207" stroke="#451A03" stroke-width="2" transform="rotate(-15 48 51)"/>
+                                <path d="M 32 12 L 68 20 L 58 45 L 28 35 Z" fill="#64748B" stroke="#334155" stroke-width="2.5"/>
+                                <path d="M 32 12 L 48 28 L 28 35 Z" fill="#94A3B8"/>
+                                <path d="M 48 28 L 68 20 L 58 45 Z" fill="#475569"/>
+                                <path d="M 35 32 L 52 42 M 38 37 L 55 47" stroke="#78350F" stroke-width="2.5"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Herramienta de Piedra</span>
+                    </div>
+
+                    <!-- Item 6: Pieles -->
+                    <div data-id="pieles" data-correct="true" onclick="toggleConnection('pieles')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-pieles" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <path d="M 30 20 C 35 10, 65 10, 70 20 C 75 35, 80 50, 75 70 C 55 75, 45 75, 25 70 C 20 50, 25 35, 30 20 Z" fill="#92400E" stroke="#451A03" stroke-width="2"/>
+                                <circle cx="38" cy="30" r="2.5" fill="#451A03"/>
+                                <circle cx="62" cy="40" r="3" fill="#451A03"/>
+                                <circle cx="45" cy="55" r="2.5" fill="#451A03"/>
+                                <path d="M 30 20 L 45 35 L 35 45" stroke="#78350F" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Ropa de Pieles</span>
+                    </div>
+
+                    <!-- Item 7: Castillo (Distractor) -->
+                    <div data-id="castillo" data-correct="false" onclick="toggleConnection('castillo')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-castillo" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <rect x="20" y="35" width="60" height="35" fill="#94A3B8" stroke="#334155" stroke-width="2"/>
+                                <rect x="15" y="20" width="20" height="50" fill="#CBD5E1" stroke="#334155" stroke-width="2"/>
+                                <rect x="65" y="20" width="20" height="50" fill="#CBD5E1" stroke="#334155" stroke-width="2"/>
+                                <path d="M 42 70 A 8 12 0 0 1 58 70 Z" fill="#475569"/>
+                                <polygon points="25,5 12,20 38,20" fill="#DC2626"/>
+                                <polygon points="75,5 62,20 88,20" fill="#DC2626"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Castillo Medieval</span>
+                    </div>
+
+                    <!-- Item 8: Vasija y Hueso -->
+                    <div data-id="vasija" data-correct="true" onclick="toggleConnection('vasija')" 
+                         class="target-card bg-white hover:bg-amber-50 rounded-xl p-1.5 md:p-2 border-2 border-amber-200 cursor-pointer transition-all duration-150 card-shadow relative flex flex-col items-center justify-between h-28 md:h-36 select-none">
+                        <div id="dot-vasija" class="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 bg-amber-400 border-2 border-white rounded-full"></div>
+                        <div class="w-full h-16 md:h-24 flex items-center justify-center">
+                            <svg class="w-full h-full max-h-full" viewBox="0 0 100 80" fill="none">
+                                <path d="M 25 25 C 25 20, 45 20, 45 25 C 45 30, 55 35, 50 55 C 45 68, 25 68, 20 55 C 15 35, 25 30, 25 25 Z" fill="#D97706" stroke="#78350F" stroke-width="2"/>
+                                <path d="M 20 38 Q 35 43 50 38" stroke="#78350F" stroke-width="2" fill="none"/>
+                                <path d="M 60 55 L 85 30" stroke="#F8FAFC" stroke-width="7" stroke-linecap="round"/>
+                                <circle cx="59" cy="56" r="4.5" fill="#F8FAFC"/>
+                                <circle cx="62" cy="52" r="4.5" fill="#F8FAFC"/>
+                                <circle cx="84" cy="28" r="4.5" fill="#F8FAFC"/>
+                                <circle cx="87" cy="32" r="4.5" fill="#F8FAFC"/>
+                            </svg>
+                        </div>
+                        <span class="text-[11px] md:text-xs font-bold text-slate-700 text-center leading-tight">Vasija y Hueso</span>
+                    </div>
+
                 </div>
             </div>
+        </div>
 
-            <!-- Columna Derecha: Rejilla de 8 Tarjetas (2 cols x 4 filas) -->
-            <div class="col-span-8 md:col-span-8 grid grid-cols-2 gap-2 sm:gap-3 h-full max-h-full overflow-hidden z-20" id="right-column">
-                <!-- Las 8 tarjetas se renderizan dinámicamente con JavaScript -->
+        <!-- Controls & Feedback Footer -->
+        <footer class="mt-2 text-center flex-shrink-0 pt-2 border-t border-amber-200">
+            <div id="feedback-panel" class="hidden mb-2 p-2 rounded-xl text-center font-bold text-sm md:text-base animate-bounce"></div>
+
+            <div class="flex justify-center items-center gap-3">
+                <button onclick="checkAnswers()" 
+                        class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-sm md:text-lg px-6 py-2.5 rounded-xl card-shadow transition-all duration-150 flex items-center gap-2">
+                    <span>Comprobar Respuestas</span>
+                </button>
+                <button onclick="resetQuiz()" 
+                        class="bg-slate-400 hover:bg-slate-500 active:scale-95 text-white font-bold text-sm md:text-lg px-4 py-2.5 rounded-xl card-shadow transition-all duration-150">
+                    <span>Reiniciar</span>
+                </button>
             </div>
-
-        </div>
-
-        <!-- Panel de Mensajes Compacto -->
-        <div id="result-box" class="hidden flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-semibold transition-all"></div>
-
-        <!-- Botones de Acción en Barra Inferior -->
-        <div class="flex-none pt-1 flex items-center justify-center gap-3">
-            <button id="check-btn" onclick="comprobarResultados()" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold py-2 px-6 rounded-xl shadow transition-all flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
-                <span>✨ Comprobar</span>
-            </button>
-            <button id="reset-btn" onclick="reiniciarJuego()" class="bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 font-bold py-2 px-4 rounded-xl shadow transition-all text-xs sm:text-sm cursor-pointer">
-                <span>🔄 Reiniciar</span>
-            </button>
-        </div>
-
+        </footer>
     </div>
 
-    <!-- Script de lógica e ilustraciones SVG optimizados -->
     <script>
-        // 8 ítems en total para encajar perfectamente (5 de Prehistoria + 3 distractores)
-        const elementosDerecha = [
-            {
-                id: "cueva",
-                titulo: "Pinturas Rupestres",
-                subtitulo: "Cuevas y arte en piedra",
-                esPrehistoria: true,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <path d="M6 50c0-18 10-30 26-30 6 0 11 3 15 7 5-5 11-7 11-7S6 32 6 50z" fill="#78350f"/>
-                    <path d="M22 50h20c0-10-5-16-10-16s-10 6-10 16z" fill="#292524"/>
-                    <path d="M42 28c2-2 4-2 6-4" stroke="#f97316" stroke-width="3.5" stroke-linecap="round"/>
-                    <circle cx="40" cy="30" r="3" fill="#f97316"/>
-                </svg>`
-            },
-            {
-                id: "fuego",
-                titulo: "Hoguera y Fuego",
-                subtitulo: "Para cocinar y calentar",
-                esPrehistoria: true,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <circle cx="20" cy="48" r="4" fill="#64748b"/>
-                    <circle cx="32" cy="50" r="5" fill="#475569"/>
-                    <circle cx="44" cy="48" r="4" fill="#64748b"/>
-                    <path d="M32 12c4 8 12 14 12 24 0 7-5 12-12 12s-12-5-12-12c0-10 8-16 12-24z" fill="#ef4444"/>
-                    <path d="M32 24c2 5 7 9 7 15 0 4-3 7-7 7s-7-3-7-7c0-6 5-10 7-15z" fill="#f59e0b"/>
-                </svg>`
-            },
-            {
-                id: "herramientas_piedra",
-                titulo: "Piedra Tallada",
-                subtitulo: "Bifaz / Hacha paleolítica",
-                esPrehistoria: true,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <!-- Mango de madera con amarre de cuerda -->
-                    <path d="M14 52l22-26" stroke="#78350f" stroke-width="6" stroke-linecap="round"/>
-                    <path d="M26 34l8-8" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
-                    <!-- Piedra tallada / Bifaz con bordes y biseles -->
-                    <path d="M28 8c8 0 24 10 24 22 0 8-10 14-18 14-8 0-14-6-14-14 0-12 10-22 8-22z" fill="#64748b"/>
-                    <path d="M30 12c5 2 16 8 16 16 0 5-6 9-11 9" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
-                    <!-- Lascas y marcas de tallado -->
-                    <path d="M34 16l-4 6M42 22l-6 4M38 30l-5 4" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
-                </svg>`
-            },
-            {
-                id: "pieles",
-                titulo: "Pieles de Animales",
-                subtitulo: "Vestimenta de caza",
-                esPrehistoria: true,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <path d="M20 12l12 4 12-4 6 16-8 4v22H22V32l-8-4 6-16z" fill="#d97706"/>
-                    <path d="M22 14l10 3 10-3" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>`
-            },
-            {
-                id: "vasija_hueso",
-                titulo: "Vasija y Hueso",
-                subtitulo: "Cerámica rudimentaria",
-                esPrehistoria: true,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <path d="M16 24h20l4 24H12l4-24z" fill="#b45309"/>
-                    <path d="M14 20h24v4H14z" fill="#d97706"/>
-                    <path d="M44 16l12 12M42 14a3 3 0 0 0-4 4" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
-                </svg>`
-            },
-            {
-                id: "piramide",
-                titulo: "Pirámide Egipcia",
-                subtitulo: "Edad Antigua",
-                esPrehistoria: false,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <path d="M32 10L4 52h56L32 10z" fill="#f59e0b"/>
-                    <path d="M32 10l24 42H32V10z" fill="#d97706"/>
-                </svg>`
-            },
-            {
-                id: "carabela",
-                titulo: "Carabela",
-                subtitulo: "Barco de descubrimientos",
-                esPrehistoria: false,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <!-- Olas del mar -->
-                    <path d="M4 54c6 0 8-3 14-3s8 3 14 3 8-3 14-3 8 3 14 3" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round"/>
-                    <!-- Casco de madera del barco -->
-                    <path d="M10 38c2 9 12 14 22 14s20-5 22-14H10z" fill="#78350f"/>
-                    <path d="M8 38h48" stroke="#451a03" stroke-width="2"/>
-                    <!-- Mástiles -->
-                    <path d="M24 14v24M42 18v20" stroke="#451a03" stroke-width="3" stroke-linecap="round"/>
-                    <!-- Velas cuadradas desplegadas -->
-                    <path d="M14 18c6-2 14-2 20 0-2 6-2 12 0 18-6 2-14 2-20 0 2-6 2-12 0-18z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-                    <path d="M34 22c5-1 12-1 16 0-1 4-1 9 0 14-4 1-11 1-16 0 1-5 1-10 0-14z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
-                    <!-- Cruces rojas en la vela principal -->
-                    <path d="M24 23v8M20 27h8" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-                    <!-- Bandera en el mástil -->
-                    <path d="M24 14l6-3-6-3" fill="#dc2626"/>
-                </svg>`
-            },
-            {
-                id: "castillo",
-                titulo: "Castillo Medieval",
-                subtitulo: "Edad Media",
-                esPrehistoria: false,
-                svg: `<svg viewBox="0 0 64 64" class="w-7 h-7 sm:w-9 sm:h-9">
-                    <path d="M12 24h10v28H12zM42 24h10v28H42zM22 34h20v18H22z" fill="#94a3b8"/>
-                    <path d="M28 42h8v10h-8z" fill="#334155"/>
-                </svg>`
-            }
-        ];
+        let isSourceSelected = true; // Selected by default
+        let activeConnections = new Set();
+        let isChecked = false;
 
-        let conexiones = new Set();
-        let elementosOrdenados = [];
-        let evaluado = false;
+        window.addEventListener('load', () => {
+            updateCanvas();
+        });
 
-        function iniciarJuego() {
-            conexiones.clear();
-            evaluado = false;
+        window.addEventListener('resize', () => {
+            updateCanvas();
+        });
 
-            const resultBox = document.getElementById('result-box');
-            resultBox.classList.add('hidden');
-            resultBox.innerHTML = '';
+        window.addEventListener('scroll', () => {
+            updateCanvas();
+        });
+
+        function selectSource() {
+            if (isChecked) return;
+            isSourceSelected = true;
+            document.getElementById('source-card').classList.add('selected-glow');
+        }
+
+        function toggleConnection(targetId) {
+            if (isChecked) return;
             
-            const checkBtn = document.getElementById('check-btn');
-            checkBtn.disabled = false;
-            checkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            elementosOrdenados = [...elementosDerecha].sort(() => Math.random() - 0.5);
-
-            renderizarDerecha();
-            setTimeout(actualizarCanvas, 50);
-        }
-
-        function renderizarDerecha() {
-            const colDer = document.getElementById('right-column');
-            colDer.innerHTML = '';
-
-            elementosOrdenados.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `item-card bg-slate-50 border-2 border-slate-200 p-1.5 sm:p-2.5 rounded-xl cursor-pointer flex items-center justify-between shadow-sm select-none hover:border-amber-400 h-full`;
-                div.dataset.id = item.id;
-                div.id = `right-${item.id}`;
-                div.innerHTML = `
-                    <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                        <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-[10px] sm:text-xs font-bold text-slate-400 flex-shrink-0 dot-indicator">·</span>
-                        <div class="p-1 bg-white rounded-lg border border-slate-200 flex-shrink-0">${item.svg}</div>
-                        <div class="min-w-0">
-                            <h4 class="font-bold text-slate-800 text-xs sm:text-sm truncate leading-tight">${item.titulo}</h4>
-                            <p class="text-[10px] sm:text-xs text-slate-500 font-medium truncate">${item.subtitulo}</p>
-                        </div>
-                    </div>
-                `;
-                div.onclick = () => tocarTarjetaDerecha(item.id);
-                colDer.appendChild(div);
-            });
-        }
-
-        function seleccionarOrigen() {
-            // El origen "Prehistoria" se mantiene siempre activo para facilidad de uso
-        }
-
-        function tocarTarjetaDerecha(id) {
-            if (evaluado) return;
-
-            if (conexiones.has(id)) {
-                conexiones.delete(id);
+            if (activeConnections.has(targetId)) {
+                activeConnections.delete(targetId);
             } else {
-                conexiones.add(id);
+                activeConnections.add(targetId);
             }
 
-            actualizarEstilosConectados();
-            actualizarCanvas();
+            updateCanvas();
         }
 
-        function actualizarEstilosConectados() {
-            document.querySelectorAll('#right-column .item-card').forEach(el => {
-                const id = el.dataset.id;
-                const dot = el.querySelector('.dot-indicator');
-                if (conexiones.has(id)) {
-                    el.classList.add('border-amber-500', 'bg-amber-50');
-                    el.classList.remove('border-slate-200', 'bg-slate-50');
-                    if (dot) {
-                        dot.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-amber-600 bg-amber-500 flex items-center justify-center text-[10px] sm:text-xs font-bold text-white flex-shrink-0 dot-indicator";
-                        dot.textContent = "✓";
+        function updateCanvas() {
+            const svg = document.getElementById('svg-canvas');
+            const sourceDot = document.getElementById('dot-source');
+            
+            svg.innerHTML = ''; // Clear SVG
+
+            if (!sourceDot) return;
+
+            const svgRect = svg.getBoundingClientRect();
+            const sourceRect = sourceDot.getBoundingClientRect();
+
+            const startX = sourceRect.left + sourceRect.width / 2 - svgRect.left;
+            const startY = sourceRect.top + sourceRect.height / 2 - svgRect.top;
+
+            activeConnections.forEach(targetId => {
+                const targetDot = document.getElementById(`dot-${targetId}`);
+                const targetCard = targetDot.closest('.target-card');
+                
+                if (targetDot) {
+                    const targetRect = targetDot.getBoundingClientRect();
+                    const endX = targetRect.left + targetRect.width / 2 - svgRect.left;
+                    const endY = targetRect.top + targetRect.height / 2 - svgRect.top;
+
+                    // Calculate Bezier curve control points
+                    const deltaX = Math.abs(endX - startX) * 0.5;
+                    const controlX1 = startX + deltaX;
+                    const controlY1 = startY;
+                    const controlX2 = endX - deltaX;
+                    const controlY2 = endY;
+
+                    // Color based on check state
+                    let strokeColor = "#F59E0B"; // Default orange
+                    let strokeWidth = "4";
+
+                    if (isChecked) {
+                        const isCorrect = targetCard.dataset.correct === "true";
+                        strokeColor = isCorrect ? "#10B981" : "#EF4444"; 
+                        strokeWidth = "5";
                     }
-                } else {
-                    el.classList.remove('border-amber-500', 'bg-amber-50', 'border-emerald-500', 'bg-emerald-100', 'border-rose-500', 'bg-rose-100');
-                    el.classList.add('border-slate-200', 'bg-slate-50');
-                    if (dot) {
-                        dot.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-[10px] sm:text-xs font-bold text-slate-400 flex-shrink-0 dot-indicator";
-                        dot.textContent = "·";
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${startX} ${startY} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${endX} ${endY}`);
+                    path.setAttribute('stroke', strokeColor);
+                    path.setAttribute('stroke-width', strokeWidth);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke-linecap', 'round');
+                    
+                    if (!isChecked) {
+                        path.setAttribute('stroke-dasharray', '8,4');
                     }
+
+                    svg.appendChild(path);
                 }
             });
         }
 
-        function actualizarCanvas() {
-            const canvas = document.getElementById('lines-canvas');
-            const container = document.getElementById('game-container');
-            if (!canvas || !container) return;
-
-            const rectContainer = container.getBoundingClientRect();
-
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
-
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const nodeIzq = document.getElementById('prehistoria-node');
-            if (!nodeIzq) return;
-            const rectIzq = nodeIzq.getBoundingClientRect();
-            const x1 = rectIzq.right - rectContainer.left;
-            const y1 = rectIzq.top + rectIzq.height / 2 - rectContainer.top;
-
-            ctx.lineWidth = 3.5;
-
-            conexiones.forEach(idTarget => {
-                const elDer = document.getElementById(`right-${idTarget}`);
-                if (elDer) {
-                    const rectDer = elDer.getBoundingClientRect();
-                    const x2 = rectDer.left - rectContainer.left + 8;
-                    const y2 = rectDer.top + rectDer.height / 2 - rectContainer.top;
-
-                    const itemObj = elementosDerecha.find(e => e.id === idTarget);
-                    ctx.strokeStyle = '#f59e0b';
-
-                    if (evaluado && itemObj) {
-                        ctx.strokeStyle = itemObj.esPrehistoria ? '#10b981' : '#ef4444';
-                    }
-
-                    ctx.beginPath();
-                    ctx.moveTo(x1, y1);
-                    ctx.bezierCurveTo(x1 + 40, y1, x2 - 40, y2, x2, y2);
-                    ctx.stroke();
-                }
-            });
-        }
-
-        function comprobarResultados() {
-            if (conexiones.size === 0) {
-                mostrarAlertaTemporal("Toca al menos un dibujo de la derecha para conectarlo.");
+        function checkAnswers() {
+            if (activeConnections.size === 0) {
+                alert("¡Selecciona al menos un dibujo para unirlo con la Prehistoria!");
                 return;
             }
 
-            evaluado = true;
-            let aciertos = 0;
-            let erroresNuevos = 0;
-            const totalPrehistoria = elementosDerecha.filter(e => e.esPrehistoria).length;
+            isChecked = true;
+            let correctCount = 0;
+            let totalCorrectAnswers = 5; // Hay 5 opciones correctas de la ficha
+            let incorrectSelections = 0;
 
-            document.querySelectorAll('#right-column .item-card').forEach(el => {
-                const id = el.dataset.id;
-                const itemObj = elementosDerecha.find(e => e.id === id);
+            const cards = document.querySelectorAll('.target-card');
 
-                if (conexiones.has(id)) {
-                    if (itemObj.esPrehistoria) {
-                        aciertos++;
-                        el.classList.add('border-emerald-500', 'bg-emerald-100');
-                    } else {
-                        erroresNuevos++;
-                        el.classList.add('border-rose-500', 'bg-rose-100');
-                    }
+            cards.forEach(card => {
+                const id = card.dataset.id;
+                const isCorrectTarget = card.dataset.correct === "true";
+                const isSelected = activeConnections.has(id);
+
+                card.classList.remove('selected-glow', 'correct-glow', 'incorrect-glow');
+
+                if (isSelected && isCorrectTarget) {
+                    card.classList.add('correct-glow');
+                    correctCount++;
+                } else if (isSelected && !isCorrectTarget) {
+                    card.classList.add('incorrect-glow');
+                    incorrectSelections++;
+                } else if (!isSelected && isCorrectTarget) {
+                    // Missed correct target
+                    card.classList.add('border-amber-400');
                 }
             });
 
-            actualizarCanvas();
+            updateCanvas();
 
-            const resultBox = document.getElementById('result-box');
-            resultBox.classList.remove('hidden');
+            const feedback = document.getElementById('feedback-panel');
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-amber-100', 'text-amber-800', 'bg-red-100', 'text-red-800');
 
-            if (aciertos === totalPrehistoria && erroresNuevos === 0) {
-                resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-emerald-100 border border-emerald-400 text-emerald-900";
-                resultBox.innerHTML = `🎉 ¡Perfecto! Acertaste los 5 elementos de la Prehistoria sin fallos.`;
-                if (typeof confetti === 'function') {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
-                }
+            if (correctCount === totalCorrectAnswers && incorrectSelections === 0) {
+                feedback.className = "mb-2 p-2 rounded-xl text-center font-bold text-sm md:text-base bg-emerald-100 text-emerald-800 border border-emerald-300";
+                feedback.innerHTML = "🎉 ¡EXCELENTE! Has encontrado todos los elementos de la Prehistoria. ¡10/10! 🏆";
+                
+                // Confetti explosion
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
             } else {
-                resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-amber-100 border border-amber-400 text-amber-900";
-                resultBox.innerHTML = `💡 Acertaste ${aciertos} de ${totalPrehistoria}. ${erroresNuevos > 0 ? `Uniste ${erroresNuevos} de otra época.` : ''}`;
+                feedback.className = "mb-2 p-2 rounded-xl text-center font-bold text-sm md:text-base bg-amber-100 text-amber-800 border border-amber-300";
+                feedback.innerHTML = `Has acertado ${correctCount} de ${totalCorrectAnswers} elementos de la Prehistoria. ${incorrectSelections > 0 ? `(Has unido ${incorrectSelections} de otra época)` : ''} ¡Inténtalo de nuevo! 💪`;
             }
         }
 
-        function reiniciarJuego() {
-            iniciarJuego();
-        }
+        function resetQuiz() {
+            isChecked = false;
+            activeConnections.clear();
+            
+            const cards = document.querySelectorAll('.target-card');
+            cards.forEach(card => {
+                card.classList.remove('selected-glow', 'correct-glow', 'incorrect-glow', 'border-amber-400');
+            });
 
-        function mostrarAlertaTemporal(mensaje) {
-            const resultBox = document.getElementById('result-box');
-            resultBox.classList.remove('hidden');
-            resultBox.className = "flex-none py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-bold bg-amber-50 border border-amber-300 text-amber-900";
-            resultBox.innerHTML = `⚠️ ${mensaje}`;
+            document.getElementById('feedback-panel').classList.add('hidden');
+            updateCanvas();
         }
-
-        window.onload = iniciarJuego;
-        window.onresize = actualizarCanvas;
     </script>
 </body>
 </html>
